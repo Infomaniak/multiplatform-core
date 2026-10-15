@@ -1,0 +1,23 @@
+*.iml
+.gradle
+.idea
+.kotlin
+.DS_Store
+build
+.build
+captures
+.externalNativeBuild
+.cxx
+local.properties
+xcuserdata
+/release/
+*.mx
+*.lock
+/Core/schemas/
+
+# Rust build artifacts
+**/target/
+**/*.rs.bk
+
+# Keep
+!.idea/icon.svg
