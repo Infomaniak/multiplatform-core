@@ -6,8 +6,11 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
 }
 
+group = "com.infomaniak.multiplatform_core"
+
 dependencies {
     compileOnly(libs.kotlin.gradle.plugin)
+    implementation(libs.ktlint.gradle.plugin)
 }
 
 @Suppress("UnstableApiUsage")
@@ -44,6 +47,10 @@ gradlePlugin {
     plugins.create("samplePlugin") {
         id = "com.infomaniak.multiplatform_core.plugin.sample"
         implementationClass = "com.infomaniak.multiplatform_core.plugin.SamplePlugin"
+    }
+    plugins.create("ktlint") {
+        id = "com.infomaniak.multiplatform_core.plugin.ktlint"
+        implementationClass = "com.infomaniak.multiplatform_core.plugin.KtlintPlugin"
     }
 }
 
