@@ -1,0 +1,5 @@
+root = true
+
+[*.{kt,kts}]
+# Package names intentionally use "multiplatform_core"
+ktlint_standard_package-name = disabled
