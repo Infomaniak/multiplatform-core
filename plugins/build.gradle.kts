@@ -56,6 +56,25 @@ gradlePlugin {
 
 gradlePlugin.testSourceSets.add(sourceSets["functionalTest"])
 
+// Exposes compileOnly plugins such as the Kotlin Gradle plugin (with their runtime dependencies) to GradleTestKit builds,
+// so test projects can apply them alongside our plugins without making them runtime dependencies of the published plugins.
+@Suppress("UnstableApiUsage")
+val functionalTestPluginsClasspath = configurations.resolvable("functionalTestPluginsClasspath") {
+    extendsFrom(configurations.compileOnly.get())
+    attributes.addAllLater(configurations.runtimeClasspath.get().attributes)
+}
+
+tasks.pluginUnderTestMetadata {
+    pluginClasspath.from(functionalTestPluginsClasspath)
+}
+
+tasks.withType<Test>().configureEach {
+    testLogging {
+        events("passed", "skipped", "failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
+}
+
 @Suppress("UnstableApiUsage")
 tasks.named<Task>("check") {
     // Include functionalTest as part of the check lifecycle
