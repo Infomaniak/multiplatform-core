@@ -20,14 +20,14 @@ Gradle plugins meant to be **published** and applied by Infomaniak apps (and by 
 
 | Id                                                | Class          | Description                                                               |
 |---------------------------------------------------|----------------|---------------------------------------------------------------------------|
-| `com.infomaniak.multiplatform_core.plugin.ktlint` | `KtlintPlugin` | Applies [ktlint-gradle](https://github.com/JLLeitschuh/ktlint-gradle) and pins the ktlint version. |
-| `com.infomaniak.multiplatform_core.plugin.sample` | `SamplePlugin` | Template plugin registering a `samplePlugin` task that prints a message.  |
+| `com.infomaniak.multiplatform_core.plugins.ktlint` | `KtlintPlugin` | Applies [ktlint-gradle](https://github.com/JLLeitschuh/ktlint-gradle) and pins the ktlint version. |
+| `com.infomaniak.multiplatform_core.plugins.sample` | `SamplePlugin` | Template plugin registering a `samplePlugin` task that prints a message.  |
 
 ### Usage
 
 ```kotlin
 plugins {
-    id("com.infomaniak.multiplatform_core.plugin.ktlint")
+    id("com.infomaniak.multiplatform_core.plugins.ktlint")
 }
 ```
 
@@ -35,7 +35,7 @@ In this repository, the Android convention plugin (`build-logic`) already applie
 
 ### Adding a plugin
 
-1. Create the `Plugin<Project>` implementation in `src/main/kotlin/com/infomaniak/multiplatform_core/plugin/`.
+1. Create the `Plugin<Project>` implementation in `src/main/kotlin/com/infomaniak/multiplatform_core/plugins/`.
 2. Register it in the `gradlePlugin { }` block of `build.gradle.kts` with its id and implementation class.
 3. Add unit tests and functional tests (see below).
 

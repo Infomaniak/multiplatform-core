@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.infomaniak.multiplatform_core.plugin
+package com.infomaniak.multiplatform_core.plugins
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
@@ -43,7 +43,7 @@ class KtlintPluginFunctionalTest {
             """
             plugins {
                 id 'org.jetbrains.kotlin.jvm'
-                id 'com.infomaniak.multiplatform_core.plugin.ktlint'
+                id 'com.infomaniak.multiplatform_core.plugins.ktlint'
             }
 
             repositories {

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.infomaniak.multiplatform_core.plugin
+package com.infomaniak.multiplatform_core.plugins
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -29,7 +29,7 @@ class SamplePlugin: Plugin<Project> {
         // Register a task
         project.tasks.register("samplePlugin") { task ->
             task.doLast {
-                println("Hello from plugin 'com.infomaniak.multiplatform_core.plugin.sample'")
+                println("Hello from plugin 'com.infomaniak.multiplatform_core.plugins.sample'")
             }
         }
     }

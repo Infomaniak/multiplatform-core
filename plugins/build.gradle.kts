@@ -45,12 +45,12 @@ testing {
 gradlePlugin {
     // Define the plugin
     plugins.create("samplePlugin") {
-        id = "com.infomaniak.multiplatform_core.plugin.sample"
-        implementationClass = "com.infomaniak.multiplatform_core.plugin.SamplePlugin"
+        id = "com.infomaniak.multiplatform_core.plugins.sample"
+        implementationClass = "com.infomaniak.multiplatform_core.plugins.SamplePlugin"
     }
     plugins.create("ktlint") {
-        id = "com.infomaniak.multiplatform_core.plugin.ktlint"
-        implementationClass = "com.infomaniak.multiplatform_core.plugin.KtlintPlugin"
+        id = "com.infomaniak.multiplatform_core.plugins.ktlint"
+        implementationClass = "com.infomaniak.multiplatform_core.plugins.KtlintPlugin"
     }
 }
 
