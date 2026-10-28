@@ -9,8 +9,20 @@ kotlin {
         namespace = "com.infomaniak.multiplatform_core.features.sample"
     }
 
+    js {
+        outputModuleName = "multiplatform-core-sample"
+        browser()
+        nodejs()
+        useEsModules()
+        binaries.library()
+        generateTypeScriptDefinitions()
+    }
+
     sourceSets {
         commonMain.dependencies {
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
         }
     }
 }
