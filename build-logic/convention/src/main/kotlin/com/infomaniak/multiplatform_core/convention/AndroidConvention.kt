@@ -48,7 +48,7 @@ class AndroidConvention : Plugin<Project> {
             }
         }
 
-        pluginManager.apply("com.infomaniak.multiplatform_core.plugin.ktlint")
+        pluginManager.apply("com.infomaniak.multiplatform_core.plugins.ktlint")
     }
 
     private fun Project.configureMultiplatformAndroidLibrary() {
@@ -61,7 +61,7 @@ class AndroidConvention : Plugin<Project> {
                 withHostTest {}
             }
         }
-        pluginManager.apply("com.infomaniak.multiplatform_core.plugin.ktlint")
+        pluginManager.apply("com.infomaniak.multiplatform_core.plugins.ktlint")
     }
 
     companion object AndroidSdk {

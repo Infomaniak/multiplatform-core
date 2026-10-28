@@ -16,20 +16,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.infomaniak.multiplatform_core.plugin
+package com.infomaniak.multiplatform_core.plugins
 
 import org.gradle.testfixtures.ProjectBuilder
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 
 /**
- * A simple unit test for the 'com.infomaniak.multiplatform_core.plugin.sample' plugin.
+ * A simple unit test for the 'com.infomaniak.multiplatform_core.plugins.sample' plugin.
  */
 class SamplePluginTest {
     @Test fun `plugin registers task`() {
         // Create a test project and apply the plugin
         val project = ProjectBuilder.builder().build()
-        project.plugins.apply("com.infomaniak.multiplatform_core.plugin.sample")
+        project.plugins.apply("com.infomaniak.multiplatform_core.plugins.sample")
 
         // Verify the result
         assertNotNull(project.tasks.findByName("samplePlugin"))

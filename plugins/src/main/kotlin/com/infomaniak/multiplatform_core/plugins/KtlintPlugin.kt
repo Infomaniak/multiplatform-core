@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.infomaniak.multiplatform_core.plugin
+package com.infomaniak.multiplatform_core.plugins
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project

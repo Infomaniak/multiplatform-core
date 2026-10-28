@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.infomaniak.multiplatform_core.plugin
+package com.infomaniak.multiplatform_core.plugins
 
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.io.TempDir
@@ -25,7 +25,7 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 
 /**
- * A simple functional test for the 'com.infomaniak.multiplatform_core.plugin.sample' plugin.
+ * A simple functional test for the 'com.infomaniak.multiplatform_core.plugins.sample' plugin.
  */
 class SamplePluginFunctionalTest {
 
@@ -40,7 +40,7 @@ class SamplePluginFunctionalTest {
         settingsFile.writeText("")
         buildFile.writeText("""
             plugins {
-                id('com.infomaniak.multiplatform_core.plugin.sample')
+                id('com.infomaniak.multiplatform_core.plugins.sample')
             }
         """.trimIndent())
 
@@ -53,6 +53,6 @@ class SamplePluginFunctionalTest {
         val result = runner.build()
 
         // Verify the result
-        assertTrue(result.output.contains("Hello from plugin 'com.infomaniak.multiplatform_core.plugin.sample'"))
+        assertTrue(result.output.contains("Hello from plugin 'com.infomaniak.multiplatform_core.plugins.sample'"))
     }
 }

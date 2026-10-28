@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.infomaniak.multiplatform_core.plugin
+package com.infomaniak.multiplatform_core.plugins
 
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -65,6 +65,6 @@ class KtlintPluginTest {
     }
 
     private companion object {
-        const val PLUGIN_ID = "com.infomaniak.multiplatform_core.plugin.ktlint"
+        const val PLUGIN_ID = "com.infomaniak.multiplatform_core.plugins.ktlint"
     }
 }
