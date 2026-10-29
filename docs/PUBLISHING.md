@@ -40,7 +40,8 @@ The artifactId of a module is its lowercase project name (`sample`, `sample-andr
    `BREAKING CHANGE:` footer → major; before 1.0.0, a breaking change bumps the minor version).
 2. On every push to `main`, release-please opens or updates **one release PR per module** that has releasable changes,
    e.g. `chore(main): release sample 0.2.0`. A commit belongs to a module when it touches files under the module
-   directory.
+   directory. Each created or updated release PR is published as a snapshot (`0.2.0-SNAPSHOT`, see
+   [Snapshots](#snapshots)).
 3. Merge the release PR of the module you want to release, whenever you want. The other release PRs stay open.
 4. The `Release Please` workflow then tags the module (`sample-0.2.0`), creates the GitHub release, and publishes the
    module from the release commit to Reposilite (and npm).
@@ -104,6 +105,15 @@ To **disable** a module, remove it from `release-please-config.json` and `.relea
 stops opening release PRs for it and the snapshot workflow refuses it. Its tags and published versions are kept.
 
 ## Snapshots
+
+### Release PR snapshots (automatic)
+
+Every time release-please creates or updates the release PR of a module, the `Release Please` workflow publishes a
+snapshot of the upcoming version from the release PR branch, e.g. `0.2.0-SNAPSHOT` for `chore(main): release sample
+0.2.0`. A release PR left unchanged by a push is not republished. This lets you test exactly what will be released
+before merging the release PR.
+
+### Manual snapshots
 
 Run the **Publish a snapshot** workflow (Actions tab) on the branch to publish, with:
 

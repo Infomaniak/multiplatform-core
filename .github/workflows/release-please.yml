@@ -1,4 +1,5 @@
 # Opens one release PR per module with pending changes (see release-please-config.json).
+# Each created or updated release PR is also published as a snapshot of its version (e.g. 0.2.0-SNAPSHOT).
 # Merging a release PR tags the module (e.g. sample-1.2.0) and publishes it to Reposilite (and npm).
 name: Release Please
 
@@ -23,6 +24,8 @@ jobs:
     outputs:
       releases: ${{ steps.plan.outputs.releases }}
       npm-releases: ${{ steps.plan.outputs.npm-releases }}
+      snapshots: ${{ steps.snapshots.outputs.snapshots }}
+      npm-snapshots: ${{ steps.snapshots.outputs.npm-snapshots }}
     steps:
       - name: Run release-please
         id: release
@@ -34,7 +37,7 @@ jobs:
           manifest-file: .release-please-manifest.json
 
       - name: Checkout sources
-        if: steps.release.outputs.releases_created == 'true'
+        if: steps.release.outputs.releases_created == 'true' || steps.release.outputs.prs_created == 'true'
         uses: actions/checkout@v6
 
       - name: Plan the publications of the released modules
@@ -53,6 +56,33 @@ jobs:
           echo "Releases: $releases"
           echo "releases=$releases" >> "$GITHUB_OUTPUT"
           echo "npm-releases=$(jq -c 'map(select(.npm == "true"))' <<< "$releases")" >> "$GITHUB_OUTPUT"
+
+      # "prs" only lists the release PRs created or updated by this run (unchanged ones are omitted),
+      # so a snapshot is published only when the content of a release PR changes.
+      - name: Plan the snapshots of the created or updated release PRs
+        id: snapshots
+        if: steps.release.outputs.prs_created == 'true'
+        env:
+          PRS: ${{ steps.release.outputs.prs }}
+        run: |
+          snapshots='[]'
+          for branch in $(jq -r '.[].headBranchName' <<< "$PRS"); do
+            component="${branch##*--components--}"
+            module="$(jq -r --arg c "$component" '.packages | to_entries[] | select(.value.component == $c) | .key' release-please-config.json)"
+            if [ -z "$module" ]; then
+              echo "::warning::No module for the release PR branch $branch"
+              continue
+            fi
+            git fetch --quiet --depth 1 origin "$branch"
+            sha="$(git rev-parse FETCH_HEAD)"
+            version="$(git show "$sha:$module/gradle.properties" | sed -n 's/^version=//p')"
+            info="$(.github/scripts/module-info.sh "$module" | jq -R 'capture("^(?<key>[^=]+)=(?<value>.*)$")' | jq -s 'from_entries')"
+            snapshot="$(jq -nc --argjson info "$info" --arg v "$version-SNAPSHOT" --arg sha "$sha" '$info + {version: $v, sha: $sha}')"
+            snapshots="$(jq -c --argjson s "$snapshot" '. + [$s]' <<< "$snapshots")"
+          done
+          echo "Snapshots: $snapshots"
+          echo "snapshots=$snapshots" >> "$GITHUB_OUTPUT"
+          echo "npm-snapshots=$(jq -c 'map(select(.npm == "true"))' <<< "$snapshots")" >> "$GITHUB_OUTPUT"
 
   publish-maven:
     needs: release-please
@@ -92,5 +122,49 @@ jobs:
       version: ${{ matrix.release.version }}
       commit-sha: ${{ matrix.release.sha }}
       dist-tag: latest
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-snapshot-maven:
+    needs: release-please
+    if: needs.release-please.outputs.snapshots != '' && needs.release-please.outputs.snapshots != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        snapshot: ${{ fromJSON(needs.release-please.outputs.snapshots) }}
+    permissions:
+      contents: read
+    uses: Infomaniak/.github/.github/workflows/kmp-publish-reposilite-snapshot.yml@v2
+    with:
+      version: ${{ matrix.snapshot.version }}
+      commit-sha: ${{ matrix.snapshot.sha }}
+      gradle-task: ${{ matrix.snapshot.gradle-task }}
+      version-property: ${{ matrix.snapshot.version-property }}
+      lib-name: "Multiplatform Core ${{ matrix.snapshot.module }} (release PR)"
+      artifact-line: ${{ matrix.snapshot.artifact-line }}
+      maven-group-path: ${{ matrix.snapshot.maven-group-path }}
+    secrets:
+      REPOSILITE_USERNAME: ${{ secrets.REPOSILITE_USERNAME }}
+      REPOSILITE_PASSWORD: ${{ secrets.REPOSILITE_PASSWORD }}
+      GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+      GPG_PRIVATE_PASSWORD: ${{ secrets.GPG_PRIVATE_PASSWORD }}
+      KCHAT_KMP_WEBHOOK_URL: ${{ secrets.KCHAT_KMP_WEBHOOK_URL }}
+
+  publish-snapshot-npm:
+    needs: release-please
+    if: needs.release-please.outputs.npm-snapshots != '' && needs.release-please.outputs.npm-snapshots != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        snapshot: ${{ fromJSON(needs.release-please.outputs.npm-snapshots) }}
+    permissions:
+      contents: read
+    uses: ./.github/workflows/publish-npm.yml
+    with:
+      module: ${{ matrix.snapshot.module }}
+      version: ${{ matrix.snapshot.version }}
+      commit-sha: ${{ matrix.snapshot.sha }}
+      dist-tag: snapshot
     secrets:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
