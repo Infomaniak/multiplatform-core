@@ -14,5 +14,9 @@ gradlePlugin {
             id = "com.infomaniak.multiplatform_core.convention.android"
             implementationClass = "com.infomaniak.multiplatform_core.convention.AndroidConvention"
         }
+        register("publish") {
+            id = "com.infomaniak.multiplatform_core.convention.publish"
+            implementationClass = "com.infomaniak.multiplatform_core.convention.PublishConvention"
+        }
     }
 }
