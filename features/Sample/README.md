@@ -52,7 +52,7 @@ To try it locally in another project: `npm install <path-to>/features/Sample/bui
 ## Publishing
 
 The module is released independently (Gradle artifact `com.infomaniak.multiplatform_core:sample`, npm package
-`@infomaniak/multiplatform-core-sample`, tag `sample-v<version>`), see [Publishing](../../docs/PUBLISHING.md).
+`@infomaniak/multiplatform-core-sample`, tag `sample-<version>`), see [Publishing](../../docs/PUBLISHING.md).
 
 ## Tests
 

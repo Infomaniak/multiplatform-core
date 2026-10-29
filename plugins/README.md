@@ -6,7 +6,7 @@ Gradle plugins meant to be **published** and applied by Infomaniak apps (and by 
 > configure this repository and are never published. `plugins` holds public plugins with a stable API.
 
 All the plugins share a single version, declared in `gradle.properties` and released with release-please (tag
-`plugins-v<version>`). See [Publishing](../docs/PUBLISHING.md) to release them, publish snapshots or consume them.
+`plugins-<version>`). See [Publishing](../docs/PUBLISHING.md) to release them, publish snapshots or consume them.
 
 ## Structure
 

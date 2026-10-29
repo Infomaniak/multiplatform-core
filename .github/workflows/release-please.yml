@@ -1,5 +1,5 @@
 # Opens one release PR per module with pending changes (see release-please-config.json).
-# Merging a release PR tags the module (e.g. sample-v1.2.0) and publishes it to Reposilite (and npm).
+# Merging a release PR tags the module (e.g. sample-1.2.0) and publishes it to Reposilite (and npm).
 name: Release Please
 
 on:

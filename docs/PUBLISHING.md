@@ -29,8 +29,8 @@ Coordinates:
 
 | Module           | Gradle (Reposilite)                                                    | npm                                     | Tag              |
 |------------------|------------------------------------------------------------------------|-----------------------------------------|------------------|
-| `features/Sample` | `com.infomaniak.multiplatform_core:sample:<version>`                  | `@infomaniak/multiplatform-core-sample` | `sample-v<version>` |
-| `plugins`        | `id("com.infomaniak.multiplatform_core.plugins.<plugin>") version "<version>"` | -                               | `plugins-v<version>` |
+| `features/Sample` | `com.infomaniak.multiplatform_core:sample:<version>`                  | `@infomaniak/multiplatform-core-sample` | `sample-<version>` |
+| `plugins`        | `id("com.infomaniak.multiplatform_core.plugins.<plugin>") version "<version>"` | -                               | `plugins-<version>` |
 
 The artifactId of a module is its lowercase project name (`sample`, `sample-android`, `sample-js`, …).
 
@@ -42,7 +42,7 @@ The artifactId of a module is its lowercase project name (`sample`, `sample-andr
    e.g. `chore(main): release sample 0.2.0`. A commit belongs to a module when it touches files under the module
    directory.
 3. Merge the release PR of the module you want to release, whenever you want. The other release PRs stay open.
-4. The `Release Please` workflow then tags the module (`sample-v0.2.0`), creates the GitHub release, and publishes the
+4. The `Release Please` workflow then tags the module (`sample-0.2.0`), creates the GitHub release, and publishes the
    module from the release commit to Reposilite (and npm).
 
 Several release PRs can be merged together: each released module is published by its own matrix job.
