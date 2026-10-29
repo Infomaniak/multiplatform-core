@@ -24,6 +24,6 @@ import kotlin.test.assertEquals
 class SampleTest {
     @Test
     fun sampleReturnsGreeting() {
-        assertEquals("Hello from Sample feature", sample())
+        assertEquals("Hello from Sample feature", sampleMessage())
     }
 }

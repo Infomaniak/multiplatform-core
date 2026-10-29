@@ -18,4 +18,4 @@
 
 package com.infomaniak.multiplatform_core.feature.sample
 
-fun sample(): String = "Hello from Sample feature"
+fun sampleMessage(): String = "Hello from Sample feature"
