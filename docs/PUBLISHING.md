@@ -3,7 +3,7 @@
 Each module of this repository is **versioned and released independently**:
 
 - Kotlin Multiplatform modules (e.g. `features/Sample`) are published to [Reposilite](https://maven.infomaniak.app)
-  (Android, JS klib and metadata variants) and, when they have a JS target, to an npm registry.
+  (Android, JS klib and metadata variants) and, when they opt in, to an npm registry.
 - The [`plugins`](../plugins) build is published to Reposilite as Gradle plugins (implementation jar + plugin markers).
   All the plugins share a single version.
 
@@ -29,7 +29,7 @@ Coordinates:
 
 | Module           | Gradle (Reposilite)                                                    | npm                                     | Tag              |
 |------------------|------------------------------------------------------------------------|-----------------------------------------|------------------|
-| `features/Sample` | `com.infomaniak.multiplatform_core:sample:<version>`                  | `@infomaniak/multiplatform-core-sample` | `sample-<version>` |
+| `features/Sample` | `com.infomaniak.multiplatform_core:sample:<version>`                  | `@infomaniak/multiplatform-core-sample` (not published yet, `publish-npm: false`) | `sample-<version>` |
 | `plugins`        | `id("com.infomaniak.multiplatform_core.plugins.<plugin>") version "<version>"` | -                               | `plugins-<version>` |
 
 The artifactId of a module is its lowercase project name (`sample`, `sample-android`, `sample-js`, …).
@@ -103,6 +103,22 @@ The `release-config` PR check (`.github/scripts/check-release-config.sh`) verifi
 
 To **disable** a module, remove it from `release-please-config.json` and `.release-please-manifest.json`: release-please
 stops opening release PRs for it and the snapshot workflow refuses it. Its tags and published versions are kept.
+
+### npm publication
+
+A module is published to npm only if its entry in `release-please-config.json` sets `"publish-npm": true` (default
+`false`). The module must have a Kotlin/JS target. Without it, the release and snapshot workflows skip every npm job of
+the module, even if it has a JS target (e.g. a JS target only used by other modules).
+
+```json
+"features/Foo": {
+  "component": "foo",
+  "publish-npm": true,
+  "extra-files": [{ "type": "generic", "path": "gradle.properties" }]
+}
+```
+
+`publish-npm` is a key of this repository, not a release-please option: release-please ignores it.
 
 ## Snapshots
 

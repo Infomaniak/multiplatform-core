@@ -11,10 +11,12 @@
   "packages": {
     "features/Sample": {
       "component": "sample",
+      "publish-npm": false,
       "extra-files": [{ "type": "generic", "path": "gradle.properties" }]
     },
     "plugins": {
       "component": "plugins",
+      "publish-npm": false,
       "extra-files": [{ "type": "generic", "path": "gradle.properties" }]
     }
   }

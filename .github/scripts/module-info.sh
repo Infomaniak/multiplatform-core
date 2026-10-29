@@ -21,8 +21,8 @@ if [ "$module" = "plugins" ]; then
 else
   artifact_id="$(basename "$module" | tr '[:upper:]' '[:lower:]')"
   artifact_line="implementation(\"com.infomaniak.multiplatform_core:${artifact_id}:{VERSION}\")"
-  # A module is published to npm when it declares a Kotlin/JS target.
-  if grep -Eq '^\s*js\s*[({]' "$module/build.gradle.kts"; then npm=true; else npm=false; fi
+  # A module is published to npm only when it opts in with "publish-npm": true in release-please-config.json.
+  npm="$(jq -r --arg m "$module" '.packages[$m]["publish-npm"] // false' "$config")"
 fi
 
 echo "module=$module"
