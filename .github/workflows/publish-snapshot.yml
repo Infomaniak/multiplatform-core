@@ -1,0 +1,90 @@
+# https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions
+name: Publish a snapshot
+
+on:
+  workflow_dispatch:
+    inputs:
+      module:
+        description: 'Module to publish, as listed in release-please-config.json (e.g. features/Sample, plugins)'
+        required: true
+        type: string
+      version:
+        description: 'Snapshot version (e.g. 0.2.0). "-SNAPSHOT" is appended automatically'
+        required: true
+        type: string
+      perform-a-gradle-clean:
+        description: 'Perform a Gradle clean'
+        type: boolean
+        default: false
+
+permissions: {}
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      gradle-task: ${{ steps.module.outputs.gradle-task }}
+      version-property: ${{ steps.module.outputs.version-property }}
+      artifact-line: ${{ steps.module.outputs.artifact-line }}
+      maven-group-path: ${{ steps.module.outputs.maven-group-path }}
+      npm: ${{ steps.module.outputs.npm }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v6
+
+      - name: Get module info
+        id: module
+        env:
+          MODULE: ${{ inputs.module }}
+        run: .github/scripts/module-info.sh "$MODULE" >> "$GITHUB_OUTPUT"
+
+      - name: Validate version
+        id: version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          VERSION="${VERSION%-SNAPSHOT}"
+          echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || {
+            echo "::error::Version '$VERSION' is not valid (expected x.x.x, e.g. 1.2.3)"
+            exit 1
+          }
+          echo "version=$VERSION-SNAPSHOT" >> "$GITHUB_OUTPUT"
+
+  publish-maven:
+    needs: plan
+    permissions:
+      contents: read
+    uses: Infomaniak/.github/.github/workflows/kmp-publish-reposilite-snapshot.yml@v2
+    with:
+      version: ${{ needs.plan.outputs.version }}
+      commit-sha: ${{ github.sha }}
+      perform-a-gradle-clean: ${{ inputs.perform-a-gradle-clean }}
+      gradle-task: ${{ needs.plan.outputs.gradle-task }}
+      version-property: ${{ needs.plan.outputs.version-property }}
+      lib-name: "Multiplatform Core ${{ inputs.module }}"
+      artifact-line: ${{ needs.plan.outputs.artifact-line }}
+      maven-group-path: ${{ needs.plan.outputs.maven-group-path }}
+    secrets:
+      REPOSILITE_USERNAME: ${{ secrets.REPOSILITE_USERNAME }}
+      REPOSILITE_PASSWORD: ${{ secrets.REPOSILITE_PASSWORD }}
+      GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+      GPG_PRIVATE_PASSWORD: ${{ secrets.GPG_PRIVATE_PASSWORD }}
+      KCHAT_KMP_WEBHOOK_URL: ${{ secrets.KCHAT_KMP_WEBHOOK_URL }}
+
+  publish-npm:
+    needs: plan
+    if: needs.plan.outputs.npm == 'true'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/publish-npm.yml
+    with:
+      module: ${{ inputs.module }}
+      version: ${{ needs.plan.outputs.version }}
+      commit-sha: ${{ github.sha }}
+      dist-tag: snapshot
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

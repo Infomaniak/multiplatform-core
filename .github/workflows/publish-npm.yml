@@ -1,0 +1,78 @@
+# Publishes the npm package of a Kotlin/JS module. Called by the release and snapshot workflows.
+# Skipped until the NPM_REGISTRY_URL repository variable is set (see docs/PUBLISHING.md).
+name: Publish to npm
+
+on:
+  workflow_call:
+    inputs:
+      module:
+        description: 'Module path in release-please-config.json (e.g. features/Sample)'
+        required: true
+        type: string
+      version:
+        description: 'Module version (x.x.x or x.x.x-SNAPSHOT)'
+        required: true
+        type: string
+      commit-sha:
+        description: 'Commit SHA to build from'
+        required: true
+        type: string
+      dist-tag:
+        description: 'npm dist-tag (latest for releases, snapshot for snapshots)'
+        required: true
+        type: string
+    secrets:
+      NPM_TOKEN:
+        required: false
+
+permissions: {}
+
+jobs:
+  publish:
+    if: vars.NPM_REGISTRY_URL != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.commit-sha }}
+
+      - name: Get module info
+        id: module
+        env:
+          MODULE: ${{ inputs.module }}
+        run: .github/scripts/module-info.sh "$MODULE" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Build the npm package
+        env:
+          NPM_SCOPE: ${{ vars.NPM_SCOPE }}
+        run: |
+          ./gradlew "${{ steps.module.outputs.gradle-project }}:jsBrowserProductionLibraryDistribution" \
+            "-P${{ steps.module.outputs.version-property }}=${{ inputs.version }}" \
+            "-Ppublish.npmSnapshotId=${{ github.run_number }}.${{ github.run_attempt }}" \
+            ${NPM_SCOPE:+"-Ppublish.npmScope=$NPM_SCOPE"}
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 'lts/*'
+          registry-url: ${{ vars.NPM_REGISTRY_URL }}
+
+      - name: Publish the npm package
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_ACCESS: ${{ vars.NPM_ACCESS }}
+        run: |
+          npm publish "${{ inputs.module }}/build/dist/js/productionLibrary" \
+            --tag "${{ inputs.dist-tag }}" ${NPM_ACCESS:+--access "$NPM_ACCESS"}
