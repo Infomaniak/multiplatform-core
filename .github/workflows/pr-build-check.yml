@@ -1,0 +1,24 @@
+name: PR Build Check
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  release-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check the release configuration
+        run: .github/scripts/check-release-config.sh
+
+  build-and-test:
+    uses: Infomaniak/.github/.github/workflows/kmp-pr-build-check.yml@v2
+    with:
+      # No Apple target yet. `:plugins:check` runs the Gradle plugins' unit and functional tests (included build).
+      build-task: assembleAndroidMain jsBrowserProductionLibraryDistribution ktlintCheck verifyPublishableDependencies :plugins:check
+      # The Android KMP library plugin replaces "testDebugUnitTest" (the reusable workflow's default) with "testAndroidHostTest".
+      android-test-task: testAndroidHostTest jsNodeTest
+      ios-test-task: ''

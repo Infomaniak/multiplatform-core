@@ -1,0 +1,96 @@
+# Opens one release PR per module with pending changes (see release-please-config.json).
+# Merging a release PR tags the module (e.g. sample-v1.2.0) and publishes it to Reposilite (and npm).
+name: Release Please
+
+on:
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    outputs:
+      releases: ${{ steps.plan.outputs.releases }}
+      npm-releases: ${{ steps.plan.outputs.npm-releases }}
+    steps:
+      - name: Run release-please
+        id: release
+        uses: googleapis/release-please-action@v5
+        with:
+          # A PAT (or GitHub App token) is needed for the release PRs to trigger the PR checks.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      - name: Checkout sources
+        if: steps.release.outputs.releases_created == 'true'
+        uses: actions/checkout@v6
+
+      - name: Plan the publications of the released modules
+        id: plan
+        if: steps.release.outputs.releases_created == 'true'
+        env:
+          RELEASE_OUTPUTS: ${{ toJSON(steps.release.outputs) }}
+        run: |
+          releases='[]'
+          for module in $(jq -r '.paths_released | fromjson | .[]' <<< "$RELEASE_OUTPUTS"); do
+            info="$(.github/scripts/module-info.sh "$module" | jq -R 'capture("^(?<key>[^=]+)=(?<value>.*)$")' | jq -s 'from_entries')"
+            release="$(jq -c --arg m "$module" --argjson info "$info" \
+              '$info + {version: .[$m + "--version"], sha: .[$m + "--sha"], tag: .[$m + "--tag_name"]}' <<< "$RELEASE_OUTPUTS")"
+            releases="$(jq -c --argjson r "$release" '. + [$r]' <<< "$releases")"
+          done
+          echo "Releases: $releases"
+          echo "releases=$releases" >> "$GITHUB_OUTPUT"
+          echo "npm-releases=$(jq -c 'map(select(.npm == "true"))' <<< "$releases")" >> "$GITHUB_OUTPUT"
+
+  publish-maven:
+    needs: release-please
+    if: needs.release-please.outputs.releases != '' && needs.release-please.outputs.releases != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        release: ${{ fromJSON(needs.release-please.outputs.releases) }}
+    permissions:
+      contents: read
+    uses: Infomaniak/.github/.github/workflows/kmp-publish-reposilite-release.yml@v2
+    with:
+      version: ${{ matrix.release.version }}
+      # Tags are prefixed with the module name, so the reusable workflow cannot derive the commit from the version.
+      commit-sha: ${{ matrix.release.sha }}
+      gradle-task: ${{ matrix.release.gradle-task }}
+      version-property: ${{ matrix.release.version-property }}
+    secrets:
+      REPOSILITE_USERNAME: ${{ secrets.REPOSILITE_USERNAME }}
+      REPOSILITE_PASSWORD: ${{ secrets.REPOSILITE_PASSWORD }}
+      GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+      GPG_PRIVATE_PASSWORD: ${{ secrets.GPG_PRIVATE_PASSWORD }}
+
+  publish-npm:
+    needs: release-please
+    if: needs.release-please.outputs.npm-releases != '' && needs.release-please.outputs.npm-releases != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        release: ${{ fromJSON(needs.release-please.outputs.npm-releases) }}
+    permissions:
+      contents: read
+    uses: ./.github/workflows/publish-npm.yml
+    with:
+      module: ${{ matrix.release.module }}
+      version: ${{ matrix.release.version }}
+      commit-sha: ${{ matrix.release.sha }}
+      dist-tag: latest
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
