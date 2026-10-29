@@ -42,12 +42,17 @@ The package (`package.json`, `.mjs` and `.d.mts` files) is generated in `feature
 and can be used from TypeScript:
 
 ```ts
-import { sampleJsMessage } from "multiplatform-core-sample";
+import { sampleJsMessage } from "@infomaniak/multiplatform-core-sample";
 
 const message: string = sampleJsMessage();
 ```
 
 To try it locally in another project: `npm install <path-to>/features/Sample/build/dist/js/productionLibrary`.
+
+## Publishing
+
+The module is released independently (Gradle artifact `com.infomaniak.multiplatform_core:sample`, npm package
+`@infomaniak/multiplatform-core-sample`, tag `sample-v<version>`), see [Publishing](../../docs/PUBLISHING.md).
 
 ## Tests
 

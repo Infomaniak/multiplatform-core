@@ -5,6 +5,9 @@ Gradle plugins meant to be **published** and applied by Infomaniak apps (and by 
 > This module is different from [`build-logic`](../build-logic): `build-logic` holds internal convention plugins that only
 > configure this repository and are never published. `plugins` holds public plugins with a stable API.
 
+All the plugins share a single version, declared in `gradle.properties` and released with release-please (tag
+`plugins-v<version>`). See [Publishing](../docs/PUBLISHING.md) to release them, publish snapshots or consume them.
+
 ## Structure
 
 `plugins` is an [included build](https://docs.gradle.org/current/userguide/composite_builds.html), not a regular subproject:
