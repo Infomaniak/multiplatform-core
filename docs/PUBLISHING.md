@@ -49,7 +49,8 @@ Several release PRs can be merged together: each released module is published by
 
 ### Forcing a version
 
-Add a `Release-As: x.y.z` footer to a commit touching the module:
+Add a `Release-As: x.y.z` footer to a commit that changes at least one file of the module. An empty commit is
+attributed to **every** module, so it would force this version on all of them.
 
 ```
 chore(sample): release 1.0.0
@@ -60,8 +61,8 @@ Release-As: 1.0.0
 ### Changes outside of a module
 
 Changes to shared build files (`build-logic`, `gradle/libs.versions.toml`, …) are not attributed to any module, so they
-do not trigger a release. To release a module affected by such a change, add an empty commit touching it or use
-`Release-As`.
+do not trigger a release. To release a module affected by such a change, push a commit that changes a file of the module
+(e.g. its `CHANGELOG.md` or `README.md`), optionally with a `Release-As` footer.
 
 ### Dependencies between modules
 
