@@ -69,8 +69,17 @@ do not trigger a release. To release a module affected by such a change, push a 
 
 A published module can only depend (`api`/`implementation` project dependencies) on modules that are published too:
 `verifyPublishableDependencies` fails otherwise, and runs before every publication and in the PR checks. The POM of a
-module references the version declared in the `gradle.properties` of its dependencies, so **release a dependency before
-the modules that depend on it**.
+module references the version declared in the `gradle.properties` of its dependencies, so these versions must be
+published first.
+
+Before publishing to Reposilite, `verifyDependenciesPublished` checks that the POM of each dependency version exists on
+Reposilite:
+
+- releases wait up to 15 minutes for it, so modules released in the same run (published in parallel) can be merged
+  together: a module waits for its dependencies, and fails instead of being published if one of them fails;
+- snapshots fail right away, since they reference released versions of their dependencies.
+
+`publishToMavenLocal` does not run this check.
 
 ## Enabling or disabling a module
 
