@@ -167,6 +167,10 @@ with `-Ppublish.version.<module path>=<version>` (`:` replaced by `.`), which is
 A non-snapshot override must equal the declared version (`verifyPublishVersion` fails otherwise), so a release can only
 publish the version committed by release-please.
 
+Publications are signed with GPG (`GPG_key_id`, `GPG_private_key` and `GPG_private_password`, as Gradle properties or
+environment variables). Signing is optional for `publishToMavenLocal`, but publishing to Reposilite fails when one of
+them is missing or blank (`verifySigningCredentials`), so unsigned artifacts are never published.
+
 | Gradle property          | Default     | Description                                                   |
 |--------------------------|-------------|---------------------------------------------------------------|
 | `publish.version.<path>` | -           | Version override of one module.                               |

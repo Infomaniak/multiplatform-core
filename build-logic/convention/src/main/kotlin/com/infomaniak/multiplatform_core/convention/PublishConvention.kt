@@ -98,11 +98,38 @@ class PublishConvention : Plugin<Project> {
         }
     }
 
+    /**
+     * Signs the publications when the GPG credentials are set. They are optional for local builds
+     * (`publishToMavenLocal`), but publishing to Reposilite fails without them, so that unsigned artifacts are never
+     * published.
+     */
     private fun Project.configureSigning() {
-        val keyId = propertyOrEnv("GPG_key_id") ?: return
-        val key = propertyOrEnv("GPG_private_key")?.replace('#', '\n') ?: return
-        val password = propertyOrEnv("GPG_private_password") ?: return
+        val keyId = propertyOrEnv("GPG_key_id")
+        val key = propertyOrEnv("GPG_private_key")?.replace('#', '\n')
+        val password = propertyOrEnv("GPG_private_password")
+        val missingCredentials = mapOf(
+            "GPG_key_id" to keyId,
+            "GPG_private_key" to key,
+            "GPG_private_password" to password,
+        ).filterValues { it == null }
+            .keys
+            .toList()
 
+        val verifySigningCredentials = tasks.register("verifySigningCredentials") {
+            group = "publishing"
+            description = "Checks that the GPG credentials are set, so that the publications are signed."
+            doLast {
+                check(missingCredentials.isEmpty()) {
+                    "Cannot publish unsigned artifacts, missing GPG credentials: $missingCredentials " +
+                        "(see docs/PUBLISHING.md)."
+                }
+            }
+        }
+        tasks.withType<PublishToMavenRepository>()
+            .matching { it.name.endsWith("ToReposiliteRepository") }
+            .configureEach { dependsOn(verifySigningCredentials) }
+
+        if (keyId == null || key == null || password == null) return
         extensions.configure<SigningExtension> {
             isRequired = true
             useInMemoryPgpKeys(keyId, key, password)
@@ -221,7 +248,9 @@ class PublishConvention : Plugin<Project> {
         version = npmVersion
     }
 
-    private fun Project.propertyOrEnv(name: String): String? = providers.gradleProperty(name).orNull ?: System.getenv(name)
+    /** Blank values count as missing, e.g. an unset GitHub secret. */
+    private fun Project.propertyOrEnv(name: String): String? =
+        (providers.gradleProperty(name).orNull ?: System.getenv(name))?.takeUnless { it.isBlank() }
 
     companion object {
         const val GROUP = "com.infomaniak.multiplatform_core"

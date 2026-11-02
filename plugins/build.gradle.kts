@@ -92,7 +92,9 @@ providers.gradleProperty("publish.version.plugins").orNull?.let { version = it }
 val publishedVersion = version.toString()
 val isSnapshot = publishedVersion.endsWith("-SNAPSHOT")
 
-fun propertyOrEnv(name: String): String? = providers.gradleProperty(name).orNull ?: System.getenv(name)
+// Blank values count as missing, e.g. an unset GitHub secret.
+fun propertyOrEnv(name: String): String? =
+    (providers.gradleProperty(name).orNull ?: System.getenv(name))?.takeUnless { it.isBlank() }
 
 val verifyPublishVersion = tasks.register("verifyPublishVersion") {
     group = "publishing"
@@ -158,6 +160,26 @@ publishing {
 val signingKeyId = propertyOrEnv("GPG_key_id")
 val signingKey = propertyOrEnv("GPG_private_key")?.replace('#', '\n')
 val signingPassword = propertyOrEnv("GPG_private_password")
+val missingSigningCredentials = mapOf(
+    "GPG_key_id" to signingKeyId,
+    "GPG_private_key" to signingKey,
+    "GPG_private_password" to signingPassword,
+).filterValues { it == null }.keys.toList()
+
+// Signing is optional for local builds, but unsigned artifacts must never be published to Reposilite.
+val verifySigningCredentials = tasks.register("verifySigningCredentials") {
+    group = "publishing"
+    description = "Checks that the GPG credentials are set, so that the publications are signed."
+    val missing = missingSigningCredentials
+    doLast {
+        check(missing.isEmpty()) {
+            "Cannot publish unsigned artifacts, missing GPG credentials: $missing (see docs/PUBLISHING.md)."
+        }
+    }
+}
+tasks.withType<PublishToMavenRepository>()
+    .matching { it.name.endsWith("ToReposiliteRepository") }
+    .configureEach { dependsOn(verifySigningCredentials) }
 if (signingKeyId != null && signingKey != null && signingPassword != null) {
     signing {
         isRequired = true
