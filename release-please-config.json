@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "simple",
+  "include-component-in-tag": true,
+  "include-v-in-tag": false,
+  "separate-pull-requests": true,
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": false,
+  "initial-version": "0.1.0",
+  "pull-request-title-pattern": "chore${scope}: release${component} ${version}",
+  "packages": {
+    "features/Sample": {
+      "component": "sample",
+      "publish-npm": false,
+      "extra-files": [{ "type": "generic", "path": "gradle.properties" }]
+    },
+    "plugins": {
+      "component": "plugins",
+      "publish-npm": false,
+      "extra-files": [{ "type": "generic", "path": "gradle.properties" }]
+    }
+  }
+}

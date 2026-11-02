@@ -4,6 +4,9 @@ plugins {
 
     // Apply the Kotlin JVM plugin to add support for Kotlin.
     alias(libs.plugins.kotlin.jvm)
+
+    `maven-publish`
+    signing
 }
 
 group = "com.infomaniak.multiplatform_core"
@@ -80,3 +83,112 @@ tasks.named<Task>("check") {
     // Include functionalTest as part of the check lifecycle
     dependsOn(testing.suites.named("functionalTest"))
 }
+
+//region Publishing (see docs/PUBLISHING.md)
+// Mirrors build-logic's PublishConvention, which cannot be used here: build-logic itself depends on this build.
+// The version lives in gradle.properties and CI overrides it with -Ppublish.version.plugins=<version>.
+val declaredVersion = version.toString()
+providers.gradleProperty("publish.version.plugins").orNull?.let { version = it }
+val publishedVersion = version.toString()
+val isSnapshot = publishedVersion.endsWith("-SNAPSHOT")
+
+// Blank values count as missing, e.g. an unset GitHub secret.
+fun propertyOrEnv(name: String): String? =
+    (providers.gradleProperty(name).orNull ?: System.getenv(name))?.takeUnless { it.isBlank() }
+
+val verifyPublishVersion = tasks.register("verifyPublishVersion") {
+    group = "publishing"
+    description = "Checks that a release version matches the version declared in gradle.properties."
+    // Local copies: script-level values cannot be captured by the configuration cache.
+    val published = publishedVersion
+    val declared = declaredVersion
+    doLast {
+        check(published.endsWith("-SNAPSHOT") || published == declared) {
+            "Release version $published differs from the version declared in gradle.properties ($declared)"
+        }
+    }
+}
+
+java {
+    withSourcesJar()
+}
+
+publishing {
+    publications.withType<MavenPublication>().configureEach {
+        pom {
+            name.set("multiplatform-core-plugins")
+            description.set("Infomaniak Core - Multiplatform - Gradle plugins")
+            url.set("https://github.com/Infomaniak/multiplatform-core")
+            licenses {
+                license {
+                    name.set("GPL-3.0")
+                    url.set("https://www.gnu.org/licenses/gpl-3.0.html")
+                }
+            }
+            issueManagement {
+                system.set("GitHub")
+                url.set("https://github.com/Infomaniak/multiplatform-core/issues")
+            }
+            scm {
+                connection.set("scm:git:https://github.com/Infomaniak/multiplatform-core.git")
+                url.set("https://github.com/Infomaniak/multiplatform-core")
+            }
+            organization {
+                name.set("Infomaniak Network SA")
+                url.set("https://www.infomaniak.com/")
+            }
+            developers {
+                developer {
+                    id.set("Infomaniak")
+                    email.set("mobile+libraries@infomaniak-dev.ch")
+                    name.set("Infomaniak Development Team")
+                    url.set("https://www.infomaniak.com/")
+                }
+            }
+        }
+    }
+    repositories.maven {
+        name = "reposilite"
+        url = uri(if (isSnapshot) "https://maven.infomaniak.app/snapshots" else "https://maven.infomaniak.app/releases")
+        credentials {
+            username = propertyOrEnv("reposiliteUsername")
+            password = propertyOrEnv("reposilitePassword")
+        }
+    }
+}
+
+val signingKeyId = propertyOrEnv("GPG_key_id")
+val signingKey = propertyOrEnv("GPG_private_key")?.replace('#', '\n')
+val signingPassword = propertyOrEnv("GPG_private_password")
+val missingSigningCredentials = mapOf(
+    "GPG_key_id" to signingKeyId,
+    "GPG_private_key" to signingKey,
+    "GPG_private_password" to signingPassword,
+).filterValues { it == null }.keys.toList()
+
+// Signing is optional for local builds, but unsigned artifacts must never be published to Reposilite.
+val verifySigningCredentials = tasks.register("verifySigningCredentials") {
+    group = "publishing"
+    description = "Checks that the GPG credentials are set, so that the publications are signed."
+    val missing = missingSigningCredentials
+    doLast {
+        check(missing.isEmpty()) {
+            "Cannot publish unsigned artifacts, missing GPG credentials: $missing (see docs/PUBLISHING.md)."
+        }
+    }
+}
+tasks.withType<PublishToMavenRepository>()
+    .matching { it.name.endsWith("ToReposiliteRepository") }
+    .configureEach { dependsOn(verifySigningCredentials) }
+if (signingKeyId != null && signingKey != null && signingPassword != null) {
+    signing {
+        isRequired = true
+        useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+        sign(publishing.publications)
+    }
+    // Workaround for https://github.com/gradle/gradle/issues/26091
+    tasks.withType<AbstractPublishToMaven>().configureEach { mustRunAfter(tasks.withType<Sign>()) }
+}
+
+tasks.withType<AbstractPublishToMaven>().configureEach { dependsOn(verifyPublishVersion) }
+//endregion

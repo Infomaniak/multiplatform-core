@@ -24,6 +24,6 @@ import kotlin.test.assertEquals
 class SampleJsTest {
     @Test
     fun facadeDelegatesToCommonSample() {
-        assertEquals("Hello from Sample feature", sample())
+        assertEquals("Hello from Sample feature", sampleJsMessage())
     }
 }

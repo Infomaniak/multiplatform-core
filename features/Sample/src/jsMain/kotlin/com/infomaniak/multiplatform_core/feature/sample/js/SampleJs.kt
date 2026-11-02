@@ -19,7 +19,7 @@
 
 package com.infomaniak.multiplatform_core.feature.sample.js
 
-import com.infomaniak.multiplatform_core.feature.sample.sample as commonSample
+import com.infomaniak.multiplatform_core.feature.sample.sampleMessage
 
 /**
  * JavaScript/TypeScript facade of the Sample module.
@@ -28,4 +28,4 @@ import com.infomaniak.multiplatform_core.feature.sample.sample as commonSample
  * annotations and the TypeScript API is explicitly controlled.
  */
 @JsExport
-fun sample(): String = commonSample()
+fun sampleJsMessage(): String = sampleMessage()
