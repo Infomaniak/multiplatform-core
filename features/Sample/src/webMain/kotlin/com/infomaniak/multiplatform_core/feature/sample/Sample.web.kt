@@ -16,14 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.infomaniak.multiplatform_core.feature.sample.js
+package com.infomaniak.multiplatform_core.feature.sample
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
-
-class SampleJsTest {
-    @Test
-    fun facadeDelegatesToCommonSample() {
-        assertEquals("Hello from Sample feature", sampleJsMessage())
-    }
-}
+actual fun platform(): String = "Web"
