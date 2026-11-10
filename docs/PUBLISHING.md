@@ -3,7 +3,7 @@
 Each module of this repository is **versioned and released independently**:
 
 - Kotlin Multiplatform modules (e.g. `features/Sample`) are published to [Reposilite](https://maven.infomaniak.app)
-  (Android, JS klib and metadata variants) and, when they opt in, to an npm registry.
+  (Android, JS, Wasm and metadata variants) and, when they opt in, to an npm registry.
 - The [`plugins`](../plugins) build is published to Reposilite as Gradle plugins (implementation jar + plugin markers).
   All the plugins share a single version.
 
@@ -29,7 +29,7 @@ Coordinates:
 
 | Module           | Gradle (Reposilite)                                                    | npm                                     | Tag              |
 |------------------|------------------------------------------------------------------------|-----------------------------------------|------------------|
-| `features/Sample` | `com.infomaniak.multiplatform_core:sample:<version>`                  | `@infomaniak/multiplatform-core-sample` (not published yet, `publish-npm: false`) | `sample-<version>` |
+| `features/Sample` | `com.infomaniak.multiplatform_core:sample:<version>`                  | `@infomaniak/multiplatform-core-sample` (`publish-npm: true`) | `sample-<version>` |
 | `plugins`        | `id("com.infomaniak.multiplatform_core.plugins.<plugin>") version "<version>"` | -                               | `plugins-<version>` |
 
 The artifactId of a module is its lowercase project name (`sample`, `sample-android`, `sample-js`, …).
