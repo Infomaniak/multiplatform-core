@@ -122,6 +122,7 @@ jobs:
       version: ${{ matrix.release.version }}
       commit-sha: ${{ matrix.release.sha }}
       dist-tag: latest
+      publish-wasm: ${{ matrix.release.wasm-npm == 'true' }}
     secrets:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -166,5 +167,6 @@ jobs:
       version: ${{ matrix.snapshot.version }}
       commit-sha: ${{ matrix.snapshot.sha }}
       dist-tag: snapshot
+      publish-wasm: ${{ matrix.snapshot.wasm-npm == 'true' }}
     secrets:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

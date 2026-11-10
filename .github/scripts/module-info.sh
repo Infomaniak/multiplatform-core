@@ -18,11 +18,13 @@ group_path="com/infomaniak/multiplatform_core"
 if [ "$module" = "plugins" ]; then
   artifact_line='id("com.infomaniak.multiplatform_core.plugins.<plugin>") version "{VERSION}"'
   npm=false
+  wasm_npm=false
 else
   artifact_id="$(basename "$module" | tr '[:upper:]' '[:lower:]')"
   artifact_line="implementation(\"com.infomaniak.multiplatform_core:${artifact_id}:{VERSION}\")"
   # A module is published to npm only when it opts in with "publish-npm": true in release-please-config.json.
   npm="$(jq -r --arg m "$module" '.packages[$m]["publish-npm"] // false' "$config")"
+  wasm_npm="$(jq -r --arg m "$module" '.packages[$m]["publish-wasm-npm"] // false' "$config")"
 fi
 
 echo "module=$module"
@@ -33,3 +35,4 @@ echo "version-property=publish.version.$(echo "${gradle_project#:}" | tr ':' '.'
 echo "artifact-line=$artifact_line"
 echo "maven-group-path=$group_path"
 echo "npm=$npm"
+echo "wasm-npm=$wasm_npm"

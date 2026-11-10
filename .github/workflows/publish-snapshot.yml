@@ -30,6 +30,7 @@ jobs:
       artifact-line: ${{ steps.module.outputs.artifact-line }}
       maven-group-path: ${{ steps.module.outputs.maven-group-path }}
       npm: ${{ steps.module.outputs.npm }}
+      wasm-npm: ${{ steps.module.outputs.wasm-npm }}
       version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout sources
@@ -86,5 +87,6 @@ jobs:
       version: ${{ needs.plan.outputs.version }}
       commit-sha: ${{ github.sha }}
       dist-tag: snapshot
+      publish-wasm: ${{ needs.plan.outputs.wasm-npm == 'true' }}
     secrets:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

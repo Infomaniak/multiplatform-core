@@ -118,6 +118,7 @@ stops opening release PRs for it and the snapshot workflow refuses it. Its tags 
 A module is published to npm only if its entry in `release-please-config.json` sets `"publish-npm": true` (default
 `false`). The module must have a Kotlin/JS target. Without it, the release and snapshot workflows skip every npm job of
 the module, even if it has a JS target (e.g. a JS target only used by other modules).
+Set `"publish-wasm-npm": true` to include the Kotlin/Wasm distribution in that npm package at the `/wasm` subpath.
 
 ```json
 "features/Foo": {

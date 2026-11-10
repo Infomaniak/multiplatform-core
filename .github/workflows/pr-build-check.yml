@@ -18,7 +18,7 @@ jobs:
     uses: Infomaniak/.github/.github/workflows/kmp-pr-build-check.yml@v2
     with:
       # No Apple target yet. `:plugins:check` runs the Gradle plugins' unit and functional tests (included build).
-      build-task: assembleAndroidMain jsBrowserProductionLibraryDistribution ktlintCheck verifyPublishableDependencies :plugins:check
+      build-task: assembleAndroidMain jsBrowserProductionLibraryDistribution wasmJsBrowserProductionLibraryDistribution ktlintCheck verifyPublishableDependencies :plugins:check
       # The Android KMP library plugin replaces "testDebugUnitTest" (the reusable workflow's default) with "testAndroidHostTest".
       android-test-task: testAndroidHostTest
       ios-test-task: ''

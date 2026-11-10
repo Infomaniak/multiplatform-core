@@ -15,6 +15,12 @@ import { sampleMessage } from "@infomaniak/multiplatform-sample";
 const message: string = sampleMessage();
 ```
 
+The npm package keeps this JavaScript entry point at its root and exposes the Wasm build through the `/wasm` subpath:
+
+```ts
+import { sampleMessage } from "@infomaniak/multiplatform-sample/wasm";
+```
+
 The common implementation delegates platform-specific behavior to `platform()`. Its Android implementation is in
 `androidMain`; the JS and Wasm targets share the `webMain` implementation.
 
