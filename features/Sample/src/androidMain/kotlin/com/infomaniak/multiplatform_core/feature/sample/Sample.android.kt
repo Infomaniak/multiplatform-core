@@ -15,17 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-@file:OptIn(ExperimentalJsExport::class)
 
-package com.infomaniak.multiplatform_core.feature.sample.js
+package com.infomaniak.multiplatform_core.feature.sample
 
-import com.infomaniak.multiplatform_core.feature.sample.sampleMessage
-
-/**
- * JavaScript/TypeScript facade of the Sample module.
- *
- * Only the declarations of this package are exported to JavaScript, so `commonMain` stays free of JS-specific
- * annotations and the TypeScript API is explicitly controlled.
- */
-@JsExport
-fun sampleJsMessage(): String = sampleMessage()
+actual fun platform(): String = "Android"

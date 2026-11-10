@@ -3,7 +3,7 @@
 Each module of this repository is **versioned and released independently**:
 
 - Kotlin Multiplatform modules (e.g. `features/Sample`) are published to [Reposilite](https://maven.infomaniak.app)
-  (Android, JS klib and metadata variants) and, when they opt in, to an npm registry.
+  (Android, JS, Wasm and metadata variants) and, when they opt in, to an npm registry.
 - The [`plugins`](../plugins) build is published to Reposilite as Gradle plugins (implementation jar + plugin markers).
   All the plugins share a single version.
 
@@ -29,7 +29,7 @@ Coordinates:
 
 | Module           | Gradle (Reposilite)                                                    | npm                                     | Tag              |
 |------------------|------------------------------------------------------------------------|-----------------------------------------|------------------|
-| `features/Sample` | `com.infomaniak.multiplatform_core:sample:<version>`                  | `@infomaniak/multiplatform-core-sample` (not published yet, `publish-npm: false`) | `sample-<version>` |
+| `features/Sample` | `com.infomaniak.multiplatform_core:sample:<version>`                  | `@infomaniak/sample-common` (`publish-npm: true`) | `sample-<version>` |
 | `plugins`        | `id("com.infomaniak.multiplatform_core.plugins.<plugin>") version "<version>"` | -                               | `plugins-<version>` |
 
 The artifactId of a module is its lowercase project name (`sample`, `sample-android`, `sample-js`, …).
@@ -118,6 +118,7 @@ stops opening release PRs for it and the snapshot workflow refuses it. Its tags 
 A module is published to npm only if its entry in `release-please-config.json` sets `"publish-npm": true` (default
 `false`). The module must have a Kotlin/JS target. Without it, the release and snapshot workflows skip every npm job of
 the module, even if it has a JS target (e.g. a JS target only used by other modules).
+Set `"publish-wasm-npm": true` to include the Kotlin/Wasm distribution in that npm package at the `/wasm` subpath.
 
 ```json
 "features/Foo": {
@@ -174,8 +175,8 @@ them is missing or blank (`verifySigningCredentials`), so unsigned artifacts are
 | Gradle property          | Default     | Description                                                   |
 |--------------------------|-------------|---------------------------------------------------------------|
 | `publish.version.<path>` | -           | Version override of one module.                               |
-| `publish.npmScope`       | `infomaniak`| npm scope of the packages (`@<scope>/multiplatform-core-<module>`). |
-| `publish.npmSnapshotId`  | `local`     | Suffix of npm snapshot versions.                              |
+| `publish.npmScope`       | `infomaniak` | npm scope used by generated package names (`@<scope>/<outputModuleName>`). |
+| `publish.npmSnapshotId`  | `local`      | Suffix of npm snapshot versions.                                        |
 
 `plugins` cannot use the convention plugin (`build-logic` depends on `plugins`), so `plugins/build.gradle.kts`
 duplicates its publishing configuration: keep both in sync.
@@ -223,8 +224,8 @@ plugins {
 ### npm
 
 ```bash
-npm install @infomaniak/multiplatform-core-sample            # latest release
-npm install @infomaniak/multiplatform-core-sample@snapshot   # latest snapshot
+npm install @infomaniak/sample-common          # latest release
+npm install @infomaniak/sample-common@snapshot # latest snapshot
 ```
 
 The registry of the `@infomaniak` scope must be configured in the consumer's `.npmrc` if it is not npmjs.org.
@@ -241,7 +242,7 @@ The registry of the `@infomaniak` scope must be configured in the consumer's `.n
 | `KCHAT_KMP_WEBHOOK_URL` | Secret   | Optional, KChat notification of snapshots.                                                   |
 | `RELEASE_PLEASE_TOKEN`  | Secret   | Optional PAT or GitHub App token, so release PRs trigger the PR checks (`GITHUB_TOKEN` events do not trigger workflows). |
 | `NPM_TOKEN`             | Secret   | npm registry token.                                                                          |
-| `NPM_REGISTRY_URL`      | Variable | npm registry URL (e.g. `https://registry.npmjs.org`). **npm publishing is skipped while unset.** |
+| `NPM_REGISTRY_URL`      | Variable | npm registry URL (e.g. `https://registry.npmjs.org`). The npm publish job runs on the self-hosted `Android` runner so it can reach internal registries. **npm publishing is skipped while unset.** |
 | `NPM_SCOPE`             | Variable | Optional, overrides the npm scope (`infomaniak`).                                            |
 | `NPM_ACCESS`            | Variable | Optional, `npm publish --access` value (e.g. `public` for a public scoped package on npmjs). |
 

@@ -18,7 +18,31 @@ jobs:
     uses: Infomaniak/.github/.github/workflows/kmp-pr-build-check.yml@v2
     with:
       # No Apple target yet. `:plugins:check` runs the Gradle plugins' unit and functional tests (included build).
-      build-task: assembleAndroidMain jsBrowserProductionLibraryDistribution ktlintCheck verifyPublishableDependencies :plugins:check
+      build-task: assembleAndroidMain jsBrowserProductionLibraryDistribution wasmJsBrowserProductionLibraryDistribution ktlintCheck verifyPublishableDependencies :plugins:check
       # The Android KMP library plugin replaces "testDebugUnitTest" (the reusable workflow's default) with "testAndroidHostTest".
-      android-test-task: testAndroidHostTest jsNodeTest
+      android-test-task: testAndroidHostTest
       ios-test-task: ''
+
+  wasm-browser-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: browser-actions/setup-chrome@v2
+        id: setup-chromium
+        with:
+          chrome-version: latest
+      - name: Configure Chrome for the hosted runner
+        env:
+          CHROME_PATH: ${{ steps.setup-chromium.outputs.chrome-path }}
+        run: |
+          printf '#!/bin/sh\nexec "%s" --no-sandbox "$@"\n' "$CHROME_PATH" > "$RUNNER_TEMP/chrome-no-sandbox"
+          chmod +x "$RUNNER_TEMP/chrome-no-sandbox"
+          echo "CHROME_BIN=$RUNNER_TEMP/chrome-no-sandbox" >> "$GITHUB_ENV"
+      - name: Run Wasm browser tests
+        run: |
+          chmod +x gradlew
+          ./gradlew wasmJsBrowserTest --stacktrace

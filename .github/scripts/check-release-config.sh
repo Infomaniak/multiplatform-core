@@ -24,6 +24,7 @@ for module in $config_modules; do
     fail "$module must apply the com.infomaniak.multiplatform_core.convention.publish plugin"
   fi
   publish_npm="$(jq -r --arg m "$module" '.packages[$m]["publish-npm"] // false' release-please-config.json)"
+  publish_wasm_npm="$(jq -r --arg m "$module" '.packages[$m]["publish-wasm-npm"] // false' release-please-config.json)"
   case "$publish_npm" in
     false) ;;
     true)
@@ -32,6 +33,15 @@ for module in $config_modules; do
       fi
       ;;
     *) fail "$module: \"publish-npm\" must be true or false" ;;
+  esac
+  case "$publish_wasm_npm" in
+    false) ;;
+    true)
+      if [ "$publish_npm" != "true" ] || ! grep -Eq '^\s*wasmJs\s*[({]' "$module/build.gradle.kts"; then
+        fail "$module sets \"publish-wasm-npm\": true but requires publish-npm and a Kotlin/Wasm target"
+      fi
+      ;;
+    *) fail "$module: \"publish-wasm-npm\" must be true or false" ;;
   esac
 done
 

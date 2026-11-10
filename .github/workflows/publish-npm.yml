@@ -21,6 +21,11 @@ on:
         description: 'npm dist-tag (latest for releases, snapshot for snapshots)'
         required: true
         type: string
+      publish-wasm:
+        description: 'Include the Wasm distribution under the package /wasm entry point'
+        required: false
+        type: boolean
+        default: false
     secrets:
       NPM_TOKEN:
         required: false
@@ -30,7 +35,7 @@ permissions: {}
 jobs:
   publish:
     if: vars.NPM_REGISTRY_URL != ''
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Android]
     permissions:
       contents: read
     steps:
@@ -56,10 +61,17 @@ jobs:
 
       - name: Build the npm package
         env:
+          GRADLE_PROJECT: ${{ steps.module.outputs.gradle-project }}
+          VERSION_PROPERTY: ${{ steps.module.outputs.version-property }}
           NPM_SCOPE: ${{ vars.NPM_SCOPE }}
+          PUBLISH_WASM: ${{ inputs.publish-wasm }}
         run: |
-          ./gradlew "${{ steps.module.outputs.gradle-project }}:jsBrowserProductionLibraryDistribution" \
-            "-P${{ steps.module.outputs.version-property }}=${{ inputs.version }}" \
+          tasks=("$GRADLE_PROJECT:jsBrowserProductionLibraryDistribution")
+          if [ "$PUBLISH_WASM" = "true" ]; then
+            tasks+=("$GRADLE_PROJECT:wasmJsBrowserProductionLibraryDistribution")
+          fi
+          ./gradlew "${tasks[@]}" \
+            "-P$VERSION_PROPERTY=${{ inputs.version }}" \
             "-Ppublish.npmSnapshotId=${{ github.run_number }}.${{ github.run_attempt }}" \
             ${NPM_SCOPE:+"-Ppublish.npmScope=$NPM_SCOPE"}
 
@@ -68,6 +80,33 @@ jobs:
         with:
           node-version: 'lts/*'
           registry-url: ${{ vars.NPM_REGISTRY_URL }}
+
+      - name: Add Wasm distribution to the npm package
+        if: inputs.publish-wasm
+        env:
+          MODULE: ${{ inputs.module }}
+        run: |
+          package_dir="$MODULE/build/dist/js/productionLibrary"
+          wasm_dir="$MODULE/build/dist/wasmJs/productionLibrary"
+          test -d "$wasm_dir"
+          mkdir -p "$package_dir/wasm"
+          cp -R "$wasm_dir/." "$package_dir/wasm/"
+          node - "$package_dir" <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const packageDir = process.argv[2];
+          const packageJsonPath = path.join(packageDir, 'package.json');
+          const wasmPackageJsonPath = path.join(packageDir, 'wasm', 'package.json');
+          const pkg = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+          const wasm = JSON.parse(fs.readFileSync(wasmPackageJsonPath, 'utf8'));
+          pkg.exports = {
+            '.': { types: `./${pkg.types}`, import: `./${pkg.main}` },
+            './wasm': { types: `./wasm/${wasm.types}`, import: `./wasm/${wasm.main}` },
+            './*': './*',
+          };
+          fs.writeFileSync(packageJsonPath, `${JSON.stringify(pkg, null, 2)}\n`);
+          fs.unlinkSync(wasmPackageJsonPath);
+          NODE
 
       - name: Publish the npm package
         env:

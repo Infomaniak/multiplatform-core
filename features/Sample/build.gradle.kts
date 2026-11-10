@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
@@ -11,10 +13,17 @@ kotlin {
     }
 
     js {
-        outputModuleName = "multiplatform-core-sample"
+        outputModuleName = "sample-common"
         browser()
-        nodejs()
         useEsModules()
+        binaries.library()
+        generateTypeScriptDefinitions()
+    }
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        outputModuleName = "sample-common"
+        browser()
         binaries.library()
         generateTypeScriptDefinitions()
     }

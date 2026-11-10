@@ -23,7 +23,7 @@ import kotlin.test.assertEquals
 
 class SampleTest {
     @Test
-    fun sampleReturnsGreeting() {
-        assertEquals("Hello from Sample feature", sampleMessage())
+    fun sampleMessageIncludesPlatformName() {
+        assertEquals("Hello from Sample feature on: ${platform()}", sampleMessage())
     }
 }

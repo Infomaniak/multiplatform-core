@@ -18,4 +18,11 @@
 
 package com.infomaniak.multiplatform_core.feature.sample
 
-fun sampleMessage(): String = "Hello from Sample feature"
+import kotlin.js.ExperimentalJsExport
+import kotlin.js.JsExport
+
+@OptIn(ExperimentalJsExport::class)
+@JsExport
+fun sampleMessage(): String = "Hello from Sample feature on: ${platform()}"
+
+expect fun platform(): String

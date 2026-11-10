@@ -11,7 +11,8 @@
   "packages": {
     "features/Sample": {
       "component": "sample",
-      "publish-npm": false,
+      "publish-npm": true,
+      "publish-wasm-npm": true,
       "extra-files": [{ "type": "generic", "path": "gradle.properties" }]
     },
     "plugins": {
