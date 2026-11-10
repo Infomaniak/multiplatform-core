@@ -35,9 +35,14 @@ jobs:
         id: setup-chromium
         with:
           chrome-version: latest
-      - name: Run Wasm browser tests
+      - name: Configure Chrome for the hosted runner
         env:
-          CHROME_BIN: ${{ steps.setup-chromium.outputs.chrome-path }}
+          CHROME_PATH: ${{ steps.setup-chromium.outputs.chrome-path }}
+        run: |
+          printf '#!/bin/sh\nexec "%s" --no-sandbox "$@"\n' "$CHROME_PATH" > "$RUNNER_TEMP/chrome-no-sandbox"
+          chmod +x "$RUNNER_TEMP/chrome-no-sandbox"
+          echo "CHROME_BIN=$RUNNER_TEMP/chrome-no-sandbox" >> "$GITHUB_ENV"
+      - name: Run Wasm browser tests
         run: |
           chmod +x gradlew
           ./gradlew wasmJsBrowserTest --stacktrace
