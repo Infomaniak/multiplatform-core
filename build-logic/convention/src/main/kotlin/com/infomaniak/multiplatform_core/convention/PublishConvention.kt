@@ -22,13 +22,12 @@ import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ProjectDependency
+import org.gradle.api.provider.Provider
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.provider.Provider
 import org.gradle.api.publish.maven.tasks.AbstractPublishToMaven
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
@@ -152,7 +151,7 @@ class PublishConvention : Plugin<Project> {
             } else {
                 publishedVersion
             }
-            val npmName = "@$scope/multiplatform-core-${project.name.lowercase()}"
+            val npmName = "@$scope/multiplatform-${project.name.lowercase()}"
             extensions.configure<KotlinMultiplatformExtension> {
                 targets.withType<KotlinJsIrTarget>().configureEach {
                     compilations.named("main") { packageJson(npmPackageJson(npmName, npmVersion)) }

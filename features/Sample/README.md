@@ -10,7 +10,7 @@ The `js` and `wasmJs` targets are configured as libraries with generated TypeScr
 annotated with `@JsExport` in `commonMain`, so the same function is exported by both web targets:
 
 ```ts
-import { sampleMessage } from "@infomaniak/multiplatform-core-sample";
+import { sampleMessage } from "@infomaniak/multiplatform-sample";
 
 const message: string = sampleMessage();
 ```
@@ -38,7 +38,7 @@ The Wasm library can be built with:
 
 The module is released independently (Gradle artifact `com.infomaniak.multiplatform_core:sample`, tag
 `sample-<version>`), see [Publishing](../../docs/PUBLISHING.md). Publication of the npm package
-`@infomaniak/multiplatform-core-sample` is enabled in `release-please-config.json`.
+`@infomaniak/multiplatform-sample` is enabled in `release-please-config.json`.
 
 ## Tests
 
@@ -48,8 +48,8 @@ The module is released independently (Gradle artifact `com.infomaniak.multiplatf
 ./gradlew :features:Sample:allTests
 ```
 
-The browser tests (`jsBrowserTest` and `wasmJsBrowserTest`) run in Chrome headless via Karma, so Chrome must be
-installed. The PR workflow runs `wasmJsBrowserTest`.
+The browser tests (`jsBrowserTest` and `wasmJsBrowserTest`) run headless via Karma and require Chrome or Chromium. The
+PR workflow runs `wasmJsBrowserTest` in a separate job with Chrome for Testing.
 
 ## Yarn lock file
 

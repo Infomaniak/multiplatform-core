@@ -29,7 +29,7 @@ Coordinates:
 
 | Module           | Gradle (Reposilite)                                                    | npm                                     | Tag              |
 |------------------|------------------------------------------------------------------------|-----------------------------------------|------------------|
-| `features/Sample` | `com.infomaniak.multiplatform_core:sample:<version>`                  | `@infomaniak/multiplatform-core-sample` (`publish-npm: true`) | `sample-<version>` |
+| `features/Sample` | `com.infomaniak.multiplatform_core:sample:<version>`                  | `@infomaniak/multiplatform-sample` (`publish-npm: true`) | `sample-<version>` |
 | `plugins`        | `id("com.infomaniak.multiplatform_core.plugins.<plugin>") version "<version>"` | -                               | `plugins-<version>` |
 
 The artifactId of a module is its lowercase project name (`sample`, `sample-android`, `sample-js`, …).
@@ -223,8 +223,8 @@ plugins {
 ### npm
 
 ```bash
-npm install @infomaniak/multiplatform-core-sample            # latest release
-npm install @infomaniak/multiplatform-core-sample@snapshot   # latest snapshot
+npm install @infomaniak/multiplatform-sample            # latest release
+npm install @infomaniak/multiplatform-sample@snapshot   # latest snapshot
 ```
 
 The registry of the `@infomaniak` scope must be configured in the consumer's `.npmrc` if it is not npmjs.org.
