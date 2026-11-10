@@ -10,7 +10,7 @@ The `js` and `wasmJs` targets are configured as libraries with generated TypeScr
 annotated with `@JsExport` in `commonMain`, so the same function is exported by both web targets:
 
 ```ts
-import { sampleMessage } from "@infomaniak/multiplatform-sample";
+import { sampleMessage } from "@infomaniak/sample-common";
 
 const message: string = sampleMessage();
 ```
@@ -18,7 +18,7 @@ const message: string = sampleMessage();
 The npm package keeps this JavaScript entry point at its root and exposes the Wasm build through the `/wasm` subpath:
 
 ```ts
-import { sampleMessage } from "@infomaniak/multiplatform-sample/wasm";
+import { sampleMessage } from "@infomaniak/sample-common/wasm";
 ```
 
 The common implementation delegates platform-specific behavior to `platform()`. Its Android implementation is in
@@ -44,7 +44,7 @@ The Wasm library can be built with:
 
 The module is released independently (Gradle artifact `com.infomaniak.multiplatform_core:sample`, tag
 `sample-<version>`), see [Publishing](../../docs/PUBLISHING.md). Publication of the npm package
-`@infomaniak/multiplatform-sample` is enabled in `release-please-config.json`.
+`@infomaniak/sample-common` is enabled in `release-please-config.json`.
 
 ## Tests
 

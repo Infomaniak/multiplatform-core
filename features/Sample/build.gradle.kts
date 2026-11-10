@@ -13,7 +13,7 @@ kotlin {
     }
 
     js {
-        outputModuleName = "multiplatform-sample"
+        outputModuleName = "sample-common"
         browser()
         useEsModules()
         binaries.library()
@@ -22,7 +22,7 @@ kotlin {
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        outputModuleName = "multiplatform-sample"
+        outputModuleName = "sample-common"
         browser()
         binaries.library()
         generateTypeScriptDefinitions()

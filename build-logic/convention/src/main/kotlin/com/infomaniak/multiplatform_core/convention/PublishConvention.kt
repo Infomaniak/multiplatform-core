@@ -139,7 +139,7 @@ class PublishConvention : Plugin<Project> {
     }
 
     /**
-     * Names the npm package `@<publish.npmScope>/multiplatform-core-<module>` and aligns its version with the module.
+     * Names the npm package from the JS target's `outputModuleName` and aligns its version with the module.
      * npm versions are immutable, so a snapshot gets a unique `<version>-snapshot.<publish.npmSnapshotId>` version.
      */
     private fun Project.configureNpmPackage(publishedVersion: String, isSnapshot: Boolean) {
@@ -151,10 +151,14 @@ class PublishConvention : Plugin<Project> {
             } else {
                 publishedVersion
             }
-            val npmName = "@$scope/multiplatform-${project.name.lowercase()}"
             extensions.configure<KotlinMultiplatformExtension> {
-                targets.withType<KotlinJsIrTarget>().configureEach {
-                    compilations.named("main") { packageJson(npmPackageJson(npmName, npmVersion)) }
+                afterEvaluate {
+                    targets.withType<KotlinJsIrTarget>().forEach { target ->
+                        val npmName = "@$scope/${target.outputModuleName.get()}"
+                        target.compilations.named("main") {
+                            packageJson(npmPackageJson(npmName, npmVersion))
+                        }
+                    }
                 }
             }
         }
