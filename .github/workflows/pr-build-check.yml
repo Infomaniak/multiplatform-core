@@ -20,5 +20,5 @@ jobs:
       # No Apple target yet. `:plugins:check` runs the Gradle plugins' unit and functional tests (included build).
       build-task: assembleAndroidMain jsBrowserProductionLibraryDistribution ktlintCheck verifyPublishableDependencies :plugins:check
       # The Android KMP library plugin replaces "testDebugUnitTest" (the reusable workflow's default) with "testAndroidHostTest".
-      android-test-task: testAndroidHostTest jsNodeTest
+      android-test-task: testAndroidHostTest wasmJsBrowserTest
       ios-test-task: ''
