@@ -241,7 +241,7 @@ The registry of the `@infomaniak` scope must be configured in the consumer's `.n
 | `KCHAT_KMP_WEBHOOK_URL` | Secret   | Optional, KChat notification of snapshots.                                                   |
 | `RELEASE_PLEASE_TOKEN`  | Secret   | Optional PAT or GitHub App token, so release PRs trigger the PR checks (`GITHUB_TOKEN` events do not trigger workflows). |
 | `NPM_TOKEN`             | Secret   | npm registry token.                                                                          |
-| `NPM_REGISTRY_URL`      | Variable | npm registry URL (e.g. `https://registry.npmjs.org`). **npm publishing is skipped while unset.** |
+| `NPM_REGISTRY_URL`      | Variable | npm registry URL (e.g. `https://registry.npmjs.org`). The npm publish job runs on the self-hosted `Android` runner so it can reach internal registries. **npm publishing is skipped while unset.** |
 | `NPM_SCOPE`             | Variable | Optional, overrides the npm scope (`infomaniak`).                                            |
 | `NPM_ACCESS`            | Variable | Optional, `npm publish --access` value (e.g. `public` for a public scoped package on npmjs). |
 
